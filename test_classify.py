@@ -72,7 +72,10 @@ localhost                  : ok=9    changed=4    unreachable=0    failed=0
 '''
 
 RECAP_HOST_ERROR = '''
-fatal: [172.19.2.133]: FAILED! => {"changed": true, "cmd": ["virsh", "vol-create-as", "oooq_pool", "undercloud.qcow2", "50G", "--format", "qcow2"], "delta": "0:00:00.160936", "end": "2016-08-05 07:05:25.026677", "failed": true, "rc": 1, "start": "2016-08-05 07:05:24.865741", "stderr": "error: failed to connect to the hypervisor\nerror: no valid connection\nerror: Failed to connect socket to '/run/user/1000/libvirt/libvirt-sock': Connection refused", "stdout": "", "stdout_lines": [], "warnings": []}
+TASK [setup/undercloud : Create undercloud volume] *****************************
+task path: /home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-minimal/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/main.yml:139
+Friday 05 August 2016  06:05:24 +0000 (0:02:37.884)       0:06:33.964 ********* 
+fatal: [172.19.2.133]: FAILED! => {"changed": true, "cmd": ["virsh", "vol-create-as", "oooq_pool", "undercloud.qcow2", "50G", "--format", "qcow2"], "delta": "0:00:00.160936", "end": "2016-08-05 07:05:25.026677", "failed": true, "rc": 1, "start": "2016-08-05 07:05:24.865741", "stderr": "error: failed to connect to the hypervisor\\nerror: no valid connection\nerror: Failed to connect socket to '/run/user/1000/libvirt/libvirt-sock': Connection refused", "stdout": "", "stdout_lines": [], "warnings": []}
 
 NO MORE HOSTS LEFT *************************************************************
 

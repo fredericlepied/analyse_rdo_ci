@@ -31,8 +31,8 @@ log_regexp = re.compile(
 )
 
 error_regexp = re.compile(
-    '^fatal:.*"stderr": "error: (.*)|'
-    '"msg": "(.*?)\.?"'
+    '^fatal:.*"stderr": "error: ([^\\\\]+)'
+    '|"msg": "(.*?)\.?"'
 )
 
 
@@ -43,7 +43,6 @@ def classify(data):
     for line in lines:
         res = recap_regexp.search(line)
         if res:
-            #print res.groups()
             failures = int(res.group(5))
             unreachables = int(res.group(4))
             if failures > 0 or unreachables > 0:
