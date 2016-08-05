@@ -43,6 +43,12 @@ class TestClassify(unittest.TestCase):
                           ('undercloud',
                            'failed-to-connect-to-the-host-via-ssh'))
 
+    def test_missing_file(self):
+        self.assertEquals(
+            classify.classify(MISSING_FILE),
+            ('host',
+             'minimal_pacemaker.yml-does-not-exist-or-is-not-readable',))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -95,6 +101,20 @@ PLAY RECAP *********************************************************************
 172.19.2.133               : ok=79   changed=50   unreachable=0    failed=0   
 localhost                  : ok=15   changed=7    unreachable=0    failed=0   
 undercloud                 : ok=23   changed=16   unreachable=1    failed=0   
+'''
+
+MISSING_FILE = '''
++ ansible-playbook -vv /home/centos/workspace/tripleo-quickstart-promote-master-delorean-minimal_pacemaker/playbooks/quickstart.yml -e @/home/centos/workspace/tripleo-quickstart-promote-master-delorean-minimal_pacemaker/config/general_config/minimal_pacemaker.yml -e ansible_python_interpreter=/usr/bin/python -e @/home/centos/workspace/tripleo-quickstart-promote-master-delorean-minimal_pacemaker/config/release/master.yml -e local_working_dir=/home/centos/workspace/tripleo-quickstart-promote-master-delorean-minimal_pacemaker -e virthost=172.19.2.142 -e undercloud_image_url=http://artifacts.ci.centos.org/artifacts/rdo/images/master/delorean/testing/undercloud.qcow2 -t all,teardown-nodes --skip-tags teardown-all,teardown-virthost
+Using ./ansible.cfg as config file
+ERROR! the file_name '/home/centos/workspace/tripleo-quickstart-promote-master-delorean-minimal_pacemaker/config/general_config/minimal_pacemaker.yml' does not exist, or is not readable
+Build step 'Execute shell' marked build as failure
+Performing Post build task...
+Match found for :Building remotely : True
+Logical operation result is TRUE
+Running script  : # tripleo-quickstart-cleanup.sh
+# A script to cleanup after tripleo-quickstart jobs
+# Collects logs and returns the node
+set -eux
 '''
 
 if __name__ == "__main__":

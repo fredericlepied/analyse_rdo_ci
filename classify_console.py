@@ -26,6 +26,10 @@ recap_regexp = re.compile(
     '([^\s]+)\s*: ok=(\d+)\s+changed=(\d+)\s+'
     'unreachable=(\d+)\s+failed=(\d+)')
 
+toplevel_error_regexp = re.compile(
+    "ERROR! the file_name '.*/([^/]+' does not exist, or is not readable)"
+)
+
 log_regexp = re.compile(
     '^fatal:.*?([/a-zA-Z0-9._-]+/([a-zA-Z0-9._-]+)\.log)'
 )
@@ -34,6 +38,17 @@ error_regexp = re.compile(
     '^fatal:.*"stderr": "error: ([^\\\\]+)'
     '|"msg": "(.*?)\.?"'
 )
+
+
+def first(ll):
+    for elt in ll:
+        if elt:
+            return elt
+    return None
+
+
+def cleanup(data):
+    return re.sub("[':,]", '', data).lower()
 
 
 def classify(data):
@@ -51,6 +66,10 @@ def classify(data):
                 else:
                     classified = (res.group(1), )
                 break
+        res = toplevel_error_regexp.search(line)
+        if res:
+            classified = ('host', '-'.join(cleanup(res.group(1)).split(' ')))
+            break
         idx += 1
     if classified != ('unknown', ):
         while idx >= 0:
@@ -62,8 +81,8 @@ def classify(data):
                 res = error_regexp.search(lines[idx])
                 if res:
                     classified = (classified[0],
-                                  '-'.join((res.group(1) or
-                                            res.group(2)).lower().split(' ')))
+                                  '-'.join(cleanup(first(res.groups()))
+                                           .split(' ')))
                     break
             idx -= 1
     return classified

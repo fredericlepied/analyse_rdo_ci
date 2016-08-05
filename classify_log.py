@@ -22,12 +22,16 @@
 import re
 import sys
 
-error_regexp = re.compile('\(.*?\) \(.*?"(.*?)"'
-                          '|Exception (.*?):'
-                          '|/([^/]+: No such file or directory)'
-                          '|Went to status ERROR due to "Message: ([^.]+).*Code: 500"'
-                          '|CREATE_FAILED (Create timed out)'
-                          )
+from classify_console import cleanup
+from classify_console import first
+
+error_regexp = re.compile(
+    '\(.*?\) \(.*?"(.*?)"'
+    '|Exception (.*?):'
+    '|/([^/]+: No such file or directory)'
+    '|Went to status ERROR due to "Message: ([^.]+).*Code: 500"'
+    '|CREATE_FAILED (Create timed out)'
+)
 
 
 def classify(data):
@@ -35,12 +39,7 @@ def classify(data):
     for line in lines:
         res = error_regexp.search(line)
         if res:
-            return ('-'.join((res.group(1) or
-                              res.group(2) or
-                              res.group(3) or
-                              res.group(4) or
-                              res.group(5)
-                              ).replace("'", '').replace(":", '').lower().split(' ')), )
+            return ('-'.join(cleanup(first(res.groups())).split(' ')), )
     return ('unknown',)
 
 if __name__ == "__main__":
