@@ -21,6 +21,13 @@ jobid="$2"
 
 job="$jobname/$jobid"
 
+for prog in jq curl; do
+    if ! type -p $prog > /dev/null; then
+        echo "$prog not installed. Aborting" 1>&2
+        exit 1
+    fi
+done
+
 mkdir -p jobs/"$job"
 
 if [ ! -r jobs/"$job"/json ]; then
@@ -32,8 +39,8 @@ if [ ! -r jobs/"$job"/json ]; then
 fi
 
 # only download log from failed jobs
-case $(jq . jobs/"$job"/json | grep '^  "result"') in
-    *FAILURE*)
+case $(jq -r .result jobs/"$job"/json) in
+    FAILURE)
         if [ ! -r jobs/"$job"/consoleText ]; then
             curl -s -o jobs/"$job"/consoleText https://ci.centos.org/job/$job/consoleText
         fi
@@ -73,15 +80,14 @@ case $(jq . jobs/"$job"/json | grep '^  "result"') in
                 ;;
         esac
         ;;
-    *ABORTED*)
+    ABORTED)
         echo "$jobname $jobid aborted"
         ;;
-    *SUCCESS*)
+    SUCCESS)
         echo "$jobname $jobid success"
         ;;
     *)
-        echo "$jobname $jobid unknown:"
-        jq . jobs/"$job"/json | grep '^  "result"'
+        echo "$jobname $jobid $(jq -r .result jobs/$job/json)"
         ;;
 esac
 
