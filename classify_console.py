@@ -71,4 +71,4 @@ def classify(data):
 if __name__ == "__main__":
     print ' '.join(classify(sys.stdin.read(-1)))
 
-# classify.py ends here
+# classify_console.py ends here

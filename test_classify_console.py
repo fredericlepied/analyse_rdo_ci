@@ -17,7 +17,7 @@
 
 import unittest
 
-import classify
+import classify_console as classify
 
 
 class TestClassify(unittest.TestCase):
@@ -100,4 +100,4 @@ undercloud                 : ok=23   changed=16   unreachable=1    failed=0
 if __name__ == "__main__":
     unittest.main()
 
-# test_classify.py ends here
+# test_classify_console.py ends here

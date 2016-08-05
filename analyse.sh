@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (C) 2016 Red Hat, Inc.
 #
@@ -38,11 +38,51 @@ case $(jq . jobs/"$job"/json | grep '^  "result"') in
             curl -s -o jobs/"$job"/consoleText https://ci.centos.org/job/$job/consoleText
         fi
         echo -n "$jobname $jobid "
-        result=$(./classify.py < jobs/"$job"/consoleText)
-        echo "$result"
+        result=$(./classify_console.py < jobs/"$job"/consoleText)
+        read reason logfile <<< $result
+        if [ ! -r jobs/"$job"/$(basename "$logfile") ]; then
+            case $reason in
+                undercloud*|overcloud*)
+                    topdir=undercloud
+                    ;;
+                *)
+                    topdir=$reason
+                    ;;
+            esac
+            case "$logfile" in
+                /*)
+                    curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/jenkins-"$jobname-$jobid"/${topdir}${logfile}.gz && \
+                        gunzip -f jobs/"$job"/$(basename $logfile).gz
+                    ;;
+            esac
+        fi
+        case "$logfile" in
+            /*)
+                if [ -r jobs/"$job"/$(basename $logfile) ]; then
+                    reason2=$(./classify_log.py < jobs/"$job"/$(basename $logfile))
+                else
+                    reason2=$logfile
+                fi
+                if [ "$reason2" = unknown ]; then
+                    reason2="$logfile"
+                fi
+                echo "failure $reason $reason2"
+                ;;
+            *)
+                echo "failure $result"
+                ;;
+        esac
+        ;;
+    *ABORTED*)
+        echo "$jobname $jobid aborted"
+        ;;
+    *SUCCESS*)
+        echo "$jobname $jobid success"
         ;;
     *)
-        echo "$jobname $jobid success"
+        echo "$jobname $jobid unknown:"
+        jq . jobs/"$job"/json | grep '^  "result"'
+        ;;
 esac
 
 # analyse.sh ends here
