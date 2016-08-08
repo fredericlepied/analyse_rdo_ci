@@ -31,13 +31,14 @@ toplevel_error_regexp = re.compile(
 )
 
 log_regexp = re.compile(
-    r'^fatal:.*?([/a-zA-Z0-9._-]+/([a-zA-Z0-9._-]+)\.log)'
+    r'^fatal:.*? > ([/a-zA-Z0-9._-]+/([a-zA-Z0-9._-]+)\.log)'
 )
 
 error_regexp = re.compile(
     r'^fatal:.*"stderr": "error: ([^\\\\]+)'
-    r'|"msg": ".*WARNING: (.*?)[.!].*"'
-    r'|"msg": "(.*?)\.?"'
+    r'|^(?:fatal|failed):.*"msg": ".*WARNING: (.*?)[.!].*"'
+    r'|^(?:fatal|failed):.*"msg": "(.*?)\.?"'
+    r'|^fatal:.*"stderr": "(?P<stderr>.*?)", "stdout_lines"'
 )
 
 generic_regexp = re.compile(
@@ -47,19 +48,41 @@ generic_regexp = re.compile(
 
 punctuation_regexp = re.compile(r"[':,]")
 
+weirdo_regexp = re.compile(
+    r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
+    r'|^(.*?)\s+\[.*ERROR.*\]$'
+)
+
 
 def first(ll):
+    '''return the first non None value'''
     for elt in ll:
         if elt:
             return elt
     return None
 
 
-def cleanup(data):
-    return punctuation_regexp.sub('', data).lower()
+def cleanup_result(res):
+    return('-'.join(punctuation_regexp.sub('', first(res.groups())).split(' '))
+           .lower())
+
+
+def classify_stderr(lines):
+    '''classify errors from weirdo runs'''
+    reason = ('host', 'unknown')
+    for idx in xrange(len(lines) - 1, 0, -1):
+        res = weirdo_regexp.search(lines[idx])
+        if res:
+            if res.group(1):
+                reason = ('host', 'tempest', res.group(1))
+            else:
+                reason = ('host', cleanup_result(res))
+            break
+    return reason
 
 
 def classify(data):
+    '''classify the console log'''
     lines = data.split('\n')
     classified = ('unknown', )
     idx = 0
@@ -76,7 +99,7 @@ def classify(data):
                 break
         res = toplevel_error_regexp.search(line)
         if res:
-            classified = ('host', '-'.join(cleanup(res.group(1)).split(' ')))
+            classified = ('host', cleanup_result(res))
             break
         idx += 1
     if classified != ('unknown', ):
@@ -87,10 +110,20 @@ def classify(data):
                 break
             else:
                 res = error_regexp.search(lines[idx])
-                if res:
-                    classified = (classified[0],
-                                  '-'.join(cleanup(first(res.groups()))
-                                           .split(' ')))
+                # do not take into account the first fatal error from
+                # weirdo jobs as this is only a summary and not the
+                # real error. Look for the previous one.
+                if (res and res.group(3) !=
+                    'A task notified that the playbook execution '
+                        'should be failed'):
+                    if res.group('stderr'):
+                        elines = res.group('stderr').split('\\n')
+                        # reformat stderr for better analysis
+                        for eline in elines:
+                            sys.stderr.write(eline + '\n')
+                        classified = classify_stderr(elines)
+                        break
+                    classified = (classified[0], cleanup_result(res))
                     break
             idx -= 1
     else:
@@ -98,9 +131,7 @@ def classify(data):
         while idx >= 0:
             res = generic_regexp.search(lines[idx])
             if res:
-                classified = ('host',
-                              '-'.join(cleanup(first(res.groups()))
-                                       .split(' ')))
+                classified = ('host', cleanup_result(res))
                 break
             idx -= 1
     return classified

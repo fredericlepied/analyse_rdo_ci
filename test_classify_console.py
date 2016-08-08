@@ -67,6 +67,16 @@ class TestClassify(unittest.TestCase):
             ('host',
              'slave-went-offline-during-the-build',))
 
+    def test_tempest(self):
+        self.assertEquals(
+            classify.classify_stderr(TEMPEST.split('\n')),
+            ('host', 'tempest', 'VPNaaSTestJSON'))
+
+    def test_summary(self):
+        self.assertEquals(
+            classify.classify_stderr(PACKSTACK_SUMMARY.split('\n')),
+            ('host', 'running-tempest'))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -177,6 +187,28 @@ Caused by: java.io.IOException: Connection timed out
 	... 6 more
 
 Build step 'Execute shell' marked build as failure
+'''
+
+TEMPEST = '''
+{1} tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern [204.007266s] ... ok
+{1} setUpClass (neutron_vpnaas.tests.tempest.api.test_vpnaas.VPNaaSTestJSON) [0.000000s] ... FAILED
+{1} setUpClass (tempest_horizon.tests.scenario.test_dashboard_basic_ops.TestDashboardBasicOps) ... SKIPPED: Horizon support is required
+{1} aodh.tests.tempest.api.test_alarming_api.TelemetryAlarmingAPITest.test_alarm_list [0.087036s] ... ok
+{1} aodh.tests.tempest.api.test_alarming_api.TelemetryAlarmingAPITest.test_create_delete_alarm_with_combination_rule ... SKIPPED: Skipped until Bug: 1585267 is resolved.
+{1} aodh.tests.tempest.api.test_alarming_api.TelemetryAlarmingAPITest.test_create_update_get_delete_alarm [0.527442s] ... ok
+{1} aodh.tests.tempest.api.test_alarming_api.TelemetryAlarmingAPITest.test_set_get_alarm_state [0.289299s] ... ok
+{1} aodh.tests.tempest.api.test_alarming_api_negative.TelemetryAlarmingNegativeTest.test_get_non_existent_alarm [0.596023s] ... ok
+{1} aodh.tests.tempest.api.test_alarming_api_negative.TelemetryAlarmingNegativeTest.test_get_update_show_history_delete_deleted_alarm [0.573877s] ... ok
+{1} neutron_fwaas.tests.tempest_plugin.tests.api.test_fwaas_extensions.FWaaSExtensionTestJSON.test_firewall_rule_insertion_position_removal_rule_from_policy [4.462457s] ... ok
+'''
+
+PACKSTACK_SUMMARY = '''
+Applying 172.19.3.87_compute.pp
+\r172.19.3.87_compute.pp:                              [ \u001b[32mDONE\u001b[0m ]
+Applying Puppet manifests                            [ \u001b[32mDONE\u001b[0m ]
+Finalizing                                           [ \u001b[32mDONE\u001b[0m ]
+Running Tempest on 172.19.3.87
+Running Tempest                                   [ \u001b[0;31mERROR\u001b[0m ]
 '''
 
 if __name__ == "__main__":

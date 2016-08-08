@@ -22,8 +22,7 @@
 import re
 import sys
 
-from classify_console import cleanup
-from classify_console import first
+from classify_console import cleanup_result
 
 error_regexp = re.compile(
     '\(.*?\) \(.*?"(.*?)"'
@@ -39,7 +38,7 @@ def classify(data):
     for line in lines:
         res = error_regexp.search(line)
         if res:
-            return ('-'.join(cleanup(first(res.groups())).split(' ')), )
+            return (cleanup_result(res),)
     return ('unknown',)
 
 if __name__ == "__main__":

@@ -45,8 +45,8 @@ case $(jq -r .result jobs/"$job"/json) in
             curl -s -o jobs/"$job"/consoleText https://ci.centos.org/job/$job/consoleText
         fi
         echo -n "$jobname $jobid "
-        result=$(./classify_console.py < jobs/"$job"/consoleText)
-        read reason logfile <<< $result
+        result=$(./classify_console.py < jobs/"$job"/consoleText 2> jobs/"$job"/stderr)
+        read reason logfile rest <<< $result
         if [ ! -r jobs/"$job"/$(basename "$logfile") ]; then
             case $reason in
                 undercloud*|overcloud*)
