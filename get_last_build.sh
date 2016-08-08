@@ -18,7 +18,13 @@
 
 json=json.$$
 
-curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/rdo-delorean-promote-master/lastBuild/api/json
+jname=$1
+
+if [ -z "$jname" ]; then
+    jname=rdo-delorean-promote-master
+fi
+
+curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/$jname/lastBuild/api/json
 
 global_result=$(jq -r .result $json)
 
