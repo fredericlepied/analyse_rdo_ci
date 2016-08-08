@@ -36,12 +36,16 @@ log_regexp = re.compile(
 
 error_regexp = re.compile(
     r'^fatal:.*"stderr": "error: ([^\\\\]+)'
+    r'|"msg": ".*WARNING: (.*?)[.!].*"'
     r'|"msg": "(.*?)\.?"'
 )
 
 generic_regexp = re.compile(
-    r'^fatal: (.*)'
+    r'^fatal: (.+)'
+    r'|.*(Slave went offline during the build).*'
 )
+
+punctuation_regexp = re.compile(r"[':,]")
 
 
 def first(ll):
@@ -52,7 +56,7 @@ def first(ll):
 
 
 def cleanup(data):
-    return re.sub("[':,]", '', data).lower()
+    return punctuation_regexp.sub('', data).lower()
 
 
 def classify(data):
@@ -95,7 +99,8 @@ def classify(data):
             res = generic_regexp.search(lines[idx])
             if res:
                 classified = ('host',
-                              '-'.join(cleanup(res.group(1)).split(' ')))
+                              '-'.join(cleanup(first(res.groups()))
+                                       .split(' ')))
                 break
             idx -= 1
     return classified

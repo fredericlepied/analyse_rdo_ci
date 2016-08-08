@@ -55,6 +55,18 @@ class TestClassify(unittest.TestCase):
             ('host',
              'the-remote-end-hung-up-unexpectedly',))
 
+    def test_remote_host(self):
+        self.assertEquals(
+            classify.classify(REMOTE_HOST),
+            ('host',
+             'remote-host-identification-has-changed',))
+
+    def test_slave_offline(self):
+        self.assertEquals(
+            classify.classify(SLAVE_OFFLINE),
+            ('host',
+             'slave-went-offline-during-the-build',))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -128,6 +140,43 @@ HUNG_UP = '''
 error: RPC failed; result=7, HTTP code = 0
 fatal: The remote end hung up unexpectedly
   Complete output from command git clone -q https://github.com/redhat-openstack/ansible-role-tripleo-cleanup-nfo.git/ /tmp/pip-build-7wghkU/ansible-role-tripleo-cleanup-nfo:
+'''
+
+REMOTE_HOST = '''
+
+failed: [172.19.3.114] (item=overcloud-full.tar.md5) => {"cmd": "/usr/bin/rsync --delay-updates -F --compress --archive --rsh 'ssh  -S none -o StrictHostKeyChecking=no' --out-format='<<CHANGED>>%i %n%L' \\"root@172.19.3.114:/var/lib/oooq-images/overcloud-full.tar.md5\\" \\"/home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-build-images/images/master/delorean/testing/overcloud-full.tar.md5\\"", "failed": true, "item": "overcloud-full.tar.md5", "msg": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\r\\n@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @\\r\\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\r\\nIT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!\\r\\nSomeone could be eavesdropping on you right now (man-in-the-middle attack)!\\r\\nIt is also possible that a host key has just been changed.\\r\\nThe fingerprint for the ECDSA key sent by the remote host is\\naa:77:ee:0c:c7:ea:dc:5b:cd:d2:56:48:8d:b5:a6:da.\\r\\nPlease contact your system administrator.\\r\\nAdd correct host key in /home/rhos-ci/.ssh/known_hosts to get rid of this message.\\r\\nOffending ECDSA key in /home/rhos-ci/.ssh/known_hosts:242\\r\\nPassword authentication is disabled to avoid man-in-the-middle attacks.\\r\\nKeyboard-interactive authentication is disabled to avoid man-in-the-middle attacks.\\r\\nrsync: link_stat \\"/var/lib/oooq-images/overcloud-full.tar.md5\\" failed: No such file or directory (2)\\nrsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1518) [Receiver=3.0.9]\\n", "rc": 23}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+172.19.3.114               : ok=48   changed=32   unreachable=0    failed=1   
+localhost                  : ok=7    changed=3    unreachable=0    failed=0   
+
+'''
+
+SLAVE_OFFLINE = '''
+Slave went offline during the build
+ERROR: Connection was broken: java.io.IOException: Connection aborted: org.jenkinsci.remoting.nio.NioChannelHub$MonoNioTransport@45bb1345[name=rdo-ci-slave01]
+	at org.jenkinsci.remoting.nio.NioChannelHub$NioTransport.abort(NioChannelHub.java:208)
+	at org.jenkinsci.remoting.nio.NioChannelHub.run(NioChannelHub.java:629)
+	at jenkins.util.ContextResettingExecutorService$1.run(ContextResettingExecutorService.java:28)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:471)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:262)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:615)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: java.io.IOException: Connection timed out
+	at sun.nio.ch.FileDispatcherImpl.read0(Native Method)
+	at sun.nio.ch.SocketDispatcher.read(SocketDispatcher.java:39)
+	at sun.nio.ch.IOUtil.readIntoNativeBuffer(IOUtil.java:223)
+	at sun.nio.ch.IOUtil.read(IOUtil.java:197)
+	at sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:384)
+	at org.jenkinsci.remoting.nio.FifoBuffer$Pointer.receive(FifoBuffer.java:137)
+	at org.jenkinsci.remoting.nio.FifoBuffer.receive(FifoBuffer.java:310)
+	at org.jenkinsci.remoting.nio.NioChannelHub.run(NioChannelHub.java:561)
+	... 6 more
+
+Build step 'Execute shell' marked build as failure
 '''
 
 if __name__ == "__main__":
