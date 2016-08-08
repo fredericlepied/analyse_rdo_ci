@@ -49,6 +49,12 @@ class TestClassify(unittest.TestCase):
             ('host',
              'minimal_pacemaker.yml-does-not-exist-or-is-not-readable',))
 
+    def test_hung_up(self):
+        self.assertEquals(
+            classify.classify(HUNG_UP),
+            ('host',
+             'the-remote-end-hung-up-unexpectedly',))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -115,6 +121,13 @@ Running script  : # tripleo-quickstart-cleanup.sh
 # A script to cleanup after tripleo-quickstart jobs
 # Collects logs and returns the node
 set -eux
+'''
+
+HUNG_UP = '''
+  Cloning https://github.com/redhat-openstack/ansible-role-tripleo-cleanup-nfo.git/ to /tmp/pip-build-7wghkU/ansible-role-tripleo-cleanup-nfo
+error: RPC failed; result=7, HTTP code = 0
+fatal: The remote end hung up unexpectedly
+  Complete output from command git clone -q https://github.com/redhat-openstack/ansible-role-tripleo-cleanup-nfo.git/ /tmp/pip-build-7wghkU/ansible-role-tripleo-cleanup-nfo:
 '''
 
 if __name__ == "__main__":
