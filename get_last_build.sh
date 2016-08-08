@@ -19,12 +19,17 @@
 json=json.$$
 
 jname=$1
+jbid=$2
 
 if [ -z "$jname" ]; then
     jname=rdo-delorean-promote-master
 fi
 
-curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/$jname/lastBuild/api/json
+if [ -z "$jbid" ]; then
+    jbid=lastBuild
+fi
+
+curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/$jname/$jbid/api/json
 
 global_result=$(jq -r .result $json)
 
