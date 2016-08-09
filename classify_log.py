@@ -30,11 +30,13 @@ error_regexp = re.compile(
     '|/([^/]+: No such file or directory)'
     '|Went to status ERROR due to "Message: ([^.]+).*Code: 500"'
     '|CREATE_FAILED (Create timed out)'
+    '|^\|.*\|.*\|\s*([^|]+)\s*\|\s*(?:CREATE_FAILED|CREATE_IN_PROGRESS)\s*\|.*\|.*\|$'
 )
 
 
 def classify(data):
     lines = data.split('\n')
+    lines.reverse()
     for line in lines:
         res = error_regexp.search(line)
         if res:

@@ -46,7 +46,9 @@ generic_regexp = re.compile(
     r'|.*(Slave went offline during the build).*'
 )
 
-punctuation_regexp = re.compile(r"['\":,]")
+punctuation_regexp = re.compile(r"['\",:]")
+
+separator_regexp = re.compile(r"\s+|::")
 
 weirdo_regexp = re.compile(
     r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
@@ -67,8 +69,9 @@ def cleanup_result(res):
         stri = res
     else:
         stri = first(res.groups())
-    return('-'.join(punctuation_regexp.sub('', stri).split(' '))
-           .lower())
+    stri = stri.strip().replace('::', '-').lower()
+    return('-'.join(separator_regexp.split(
+        punctuation_regexp.sub('', stri))))
 
 
 def classify_stderr(reas, lines):

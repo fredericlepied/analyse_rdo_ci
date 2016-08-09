@@ -42,6 +42,14 @@ class TestClassifyLog(unittest.TestCase):
         self.assertEquals(classify_log.classify(TIMEOUT),
                           ('create-timed-out',))
 
+    def test_heat(self):
+        self.assertEquals(classify_log.classify(HEAT_RESOURCE),
+                          ('os-cinder-volume',))
+
+    def test_heat2(self):
+        self.assertEquals(classify_log.classify(HEAT_RESOURCE2),
+                          ('os-cinder-volume',))
+
 POST_INSTALL = '''
 + openstack baremetal import --json instackenv.json
 (pymysql.err.InternalError) (1054, u"Unknown column 'unique_key' in 'field list'") [SQL: u'INSERT INTO delayed_calls_v2 (created_at, id, factory_method_path, target_method_name, method_arguments, serializers, unique_key, auth_context, execution_time, processing) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE id=id'] [parameters: (datetime.datetime(2016, 8, 5, 12, 47, 0, 59083), u'06ecd004-26d3-455e-aa7c-93d959c50800', None, 'mistral.engine.actions._run_existing_action', '{"action_ex_id": "57d28243-920d-486b-bf10-1c7ff03bb2b7", "target": null}', None, None, '{"project_name": "admin", "user_id": "bd1a8bf5f6fe4061b1dceed0ec6c843f", "roles": ["admin"], "is_trust_scoped": false, "auth_cacert": null, "auth_token": "d86f785438f0458eb04d637db64f7d13", "auth_uri": "http://192.0.2.1:5000/v3", "service_catalog": "[{\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:5050\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:5050\\", \\"publicURL\\": \\"http://192.0.2.1:5050\\"}], \\"type\\": \\"baremetal-introspection\\", \\"name\\": \\"ironic-inspector\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:6385\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:6385\\", \\"publicURL\\": \\"http://192.0.2.1:6385\\"}], \\"type\\": \\"baremetal\\", \\"name\\": \\"ironic\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"ws://192.0.2.1:9000/\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"ws://192.0.2.1:9000/\\", \\"publicURL\\": \\"ws://192.0.2.1:9000/\\"}], \\"type\\": \\"messaging-websocket\\", \\"name\\": \\"zaqar-websocket\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8080\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8080/v1/AUTH_0d1b5970a85c471e9c936eb12dd2c373\\", \\"publicURL\\": \\"http://192.0.2.1:8080/v1/AUTH_0d1b5970a85c471e9c936eb12dd2c373\\"}], \\"type\\": \\"object-store\\", \\"name\\": \\"swift\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8989/v2\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8989/v2\\", \\"publicURL\\": \\"http://192.0.2.1:8989/v2\\"}], \\"type\\": \\"workflowv2\\", \\"name\\": \\"mistral\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:9292\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:9292\\", \\"publicURL\\": \\"http://192.0.2.1:9292\\"}], \\"type\\": \\"image\\", \\"name\\": \\"glance\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8774/v2.1\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8774/v2.1\\", \\"publicURL\\": \\"http://192.0.2.1:8774/v2.1\\"}], \\"type\\": \\"compute\\", \\"name\\": \\"nova\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:9696\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:9696\\", \\"publicURL\\": \\"http://192.0.2.1:9696\\"}], \\"type\\": \\"network\\", \\"name\\": \\"neutron\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8888/\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8888/\\", \\"publicURL\\": \\"http://192.0.2.1:8888/\\"}], \\"type\\": \\"messaging\\", \\"name\\": \\"zaqar\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:35357/v2.0\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:5000/v2.0\\", \\"publicURL\\": \\"http://192.0.2.1:5000/v2.0\\"}], \\"type\\": \\"identity\\", \\"name\\": \\"keystone\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\", \\"publicURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\"}], \\"type\\": \\"orchestration\\", \\"name\\": \\"heat\\"}]", "project_id": "0d1b5970a85c471e9c936eb12dd2c373", "user_name": "admin"}', datetime.datetime(2016, 8, 5, 12, 47, 0, 56967), 0)]
@@ -72,6 +80,42 @@ TIMEOUT = '''
 36 [ComputeNodesPostDeployment]: CREATE_FAILED CREATE aborted
 2016-08-02 11:53:36 [overcloud]: CREATE_FAILED Create timed out
 Stack overcloud CREATE_FAILED
+'''
+
+HEAT_RESOURCE = '''
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+-----------------+---------------------+--------------+
+| resource_name         | physical_resource_id                                                                | resource_type                | resource_status | updated_time        | stack_name   |
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+-----------------+---------------------+--------------+
+| key_pair              | pingtest_key                                                                        | OS::Nova::KeyPair            | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| private_net           | 620b3db4-68f6-49b5-84c2-8d264509d4a0                                                | OS::Neutron::Net             | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| private_subnet        | e78d6050-dccd-42f4-b8fd-bf27f668cdb6                                                | OS::Neutron::Subnet          | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| router                | bb87d5d3-749b-4f6d-9609-082d7b358bdb                                                | OS::Neutron::Router          | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| router_interface      | bb87d5d3-749b-4f6d-9609-082d7b358bdb:subnet_id=e78d6050-dccd-42f4-b8fd-bf27f668cdb6 | OS::Neutron::RouterInterface | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| server1               |                                                                                     | OS::Nova::Server             | INIT_COMPLETE   | 2016-08-09T02:46:58 | tenant-stack |
+| server1_floating_ip   | 8de47108-cf61-465d-b885-a5827a402c20                                                | OS::Neutron::FloatingIP      | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| server1_port          | 33b6a864-b8e4-4fe1-a0b8-12ffc56e9296                                                | OS::Neutron::Port            | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| server_security_group | 0434542a-1e9f-4b8c-9f74-b8282e2a7ec2                                                | OS::Neutron::SecurityGroup   | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| test_flavor           | f9e78e3e-f678-41cc-be51-3fda1434e3c2                                                | OS::Nova::Flavor             | CREATE_COMPLETE | 2016-08-09T02:46:58 | tenant-stack |
+| volume1               | d1733b4d-519e-4288-b584-65f4a9194f33                                                | OS::Cinder::Volume           | CREATE_FAILED   | 2016-08-09T02:46:58 | tenant-stack |
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+-----------------+---------------------+--------------+
+'''
+
+HEAT_RESOURCE2 = '''
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+--------------------+---------------------+--------------+
+| resource_name         | physical_resource_id                                                                | resource_type                | resource_status    | updated_time        | stack_name   |
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+--------------------+---------------------+--------------+
+| key_pair              | pingtest_key                                                                        | OS::Nova::KeyPair            | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| router                | fd786e39-fbbd-4f11-8104-68a4d22a2614                                                | OS::Neutron::Router          | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| router_interface      | fd786e39-fbbd-4f11-8104-68a4d22a2614:subnet_id=51fb28c4-9ca4-43cf-87aa-2b61bb67d585 | OS::Neutron::RouterInterface | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| server1               |                                                                                     | OS::Nova::Server             | INIT_COMPLETE      | 2016-08-08T23:51:27 | tenant-stack |
+| server1_floating_ip   | 39b7d1cd-4b72-48c2-8b7b-13eb317f685a                                                | OS::Neutron::FloatingIP      | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| server1_port          | 201ef053-2f84-4b12-b7a6-d083f47162fd                                                | OS::Neutron::Port            | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| test_flavor           | 07c831f1-64b0-4573-bf3c-6e0fb37c8784                                                | OS::Nova::Flavor             | CREATE_COMPLETE    | 2016-08-08T23:51:27 | tenant-stack |
+| volume1               | b084f9a1-a414-4b3a-b5f7-a06a57b42fb2                                                | OS::Cinder::Volume           | CREATE_IN_PROGRESS | 2016-08-08T23:51:27 | tenant-stack |
+| private_net           | e9554296-9950-4d5e-8dba-73946a87a4b7                                                | OS::Neutron::Net             | CREATE_COMPLETE    | 2016-08-08T23:51:28 | tenant-stack |
+| private_subnet        | 51fb28c4-9ca4-43cf-87aa-2b61bb67d585                                                | OS::Neutron::Subnet          | CREATE_COMPLETE    | 2016-08-08T23:51:28 | tenant-stack |
+| server_security_group | 042b0d2a-a6c6-47fb-8526-f316b193753d                                                | OS::Neutron::SecurityGroup   | CREATE_COMPLETE    | 2016-08-08T23:51:28 | tenant-stack |
++-----------------------+-------------------------------------------------------------------------------------+------------------------------+--------------------+---------------------+--------------+
 '''
 
 if __name__ == "__main__":
