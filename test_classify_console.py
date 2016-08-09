@@ -69,13 +69,18 @@ class TestClassify(unittest.TestCase):
 
     def test_tempest(self):
         self.assertEquals(
-            classify.classify_stderr(TEMPEST.split('\n')),
-            ('host', 'tempest', 'VPNaaSTestJSON'))
+            classify.classify_stderr('host', TEMPEST.split('\n')),
+            ('tempest', 'VPNaaSTestJSON'))
 
     def test_summary(self):
         self.assertEquals(
-            classify.classify_stderr(PACKSTACK_SUMMARY.split('\n')),
+            classify.classify_stderr('host', PACKSTACK_SUMMARY.split('\n')),
             ('host', 'running-tempest'))
+
+    def test_traceback(self):
+        self.assertEquals(
+            classify.classify_stderr('host', TRACEBACK.split('\n')),
+            ('host', 'keyerror-ctlplane-stdout-'))
 
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
@@ -210,6 +215,13 @@ Finalizing                                           [ \u001b[32mDONE\u001b[0m ]
 Running Tempest on 172.19.3.87
 Running Tempest                                   [ \u001b[0;31mERROR\u001b[0m ]
 '''
+
+TRACEBACK = '''Traceback (most recent call last):
+  File \\"/home/stack/get-overcloud-nodes.py\\", line 12, in <module>
+    print {server.name: server.networks['ctlplane'][0] for server in nova.servers.list()}
+  File \\"/home/stack/get-overcloud-nodes.py\\", line 12, in <dictcomp>
+    print {server.name: server.networks['ctlplane'][0] for server in nova.servers.list()}
+KeyError: 'ctlplane'", "stdout": "'''
 
 if __name__ == "__main__":
     unittest.main()

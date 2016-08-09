@@ -46,7 +46,7 @@ generic_regexp = re.compile(
     r'|.*(Slave went offline during the build).*'
 )
 
-punctuation_regexp = re.compile(r"[':,]")
+punctuation_regexp = re.compile(r"['\":,]")
 
 weirdo_regexp = re.compile(
     r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
@@ -63,20 +63,26 @@ def first(ll):
 
 
 def cleanup_result(res):
-    return('-'.join(punctuation_regexp.sub('', first(res.groups())).split(' '))
+    if isinstance(res, basestring):
+        stri = res
+    else:
+        stri = first(res.groups())
+    return('-'.join(punctuation_regexp.sub('', stri).split(' '))
            .lower())
 
 
-def classify_stderr(lines):
-    '''classify errors from weirdo runs'''
-    reason = ('host', 'unknown')
+def classify_stderr(reas, lines):
+    '''classify errors from weirdo runs or Python tracebacks'''
+    reason = (reas, 'unknown')
+    if lines[0] == 'Traceback (most recent call last):':
+        return (reason[0], cleanup_result(lines[-1]))
     for idx in xrange(len(lines) - 1, 0, -1):
         res = weirdo_regexp.search(lines[idx])
         if res:
             if res.group(1):
-                reason = ('host', 'tempest', res.group(1))
+                reason = ('tempest', res.group(1))
             else:
-                reason = ('host', cleanup_result(res))
+                reason = (reason[0], cleanup_result(res))
             break
     return reason
 
@@ -121,7 +127,7 @@ def classify(data):
                         # reformat stderr for better analysis
                         for eline in elines:
                             sys.stderr.write(eline + '\n')
-                        classified = classify_stderr(elines)
+                        classified = classify_stderr(classified[0], elines)
                         break
                     classified = (classified[0], cleanup_result(res))
                     break
