@@ -73,10 +73,10 @@ case $(jq -r .result jobs/"$job"/json) in
                 if [ "$reason2" = unknown ]; then
                     reason2="$logfile"
                 fi
-                echo "failure $reason $reason2"
+                echo "failure $reason $reason2 [issue ]"
                 ;;
             *)
-                echo "failure $result"
+                echo "failure $result [issue ]"
                 ;;
         esac
         ;;
