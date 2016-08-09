@@ -21,11 +21,11 @@ json=json.$$
 jname=$1
 jbid=$2
 
-if [ -z "$jname" ]; then
+if [ -z "$jname" -o "$jname" = - ]; then
     jname=rdo-delorean-promote-master
 fi
 
-if [ -z "$jbid" ]; then
+if [ -z "$jbid" -o "$jbid" = - ]; then
     jbid=lastBuild
 fi
 
@@ -52,6 +52,6 @@ else
     echo "nothing to analyse ($global_result)" 1>&2
 fi
 
-rm $json
+rm -f $json
 
 # get_last_build.sh ends here
