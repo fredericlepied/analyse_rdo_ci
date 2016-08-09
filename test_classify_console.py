@@ -67,6 +67,11 @@ class TestClassify(unittest.TestCase):
             ('host',
              'slave-went-offline-during-the-build',))
 
+    def test_overcloud_deploy_result(self):
+        self.assertEquals(
+            classify.classify(OVERCLOUD_DEPLOY_RESULT),
+            ('overcloud', '/home/stack/overcloud_deploy.log'))
+
     def test_tempest(self):
         self.assertEquals(
             classify.classify_stderr('host', TEMPEST.split('\n')),
@@ -222,6 +227,25 @@ TRACEBACK = '''Traceback (most recent call last):
   File \\"/home/stack/get-overcloud-nodes.py\\", line 12, in <dictcomp>
     print {server.name: server.networks['ctlplane'][0] for server in nova.servers.list()}
 KeyError: 'ctlplane'", "stdout": "'''
+
+OVERCLOUD_DEPLOY_RESULT = '''
+TASK [did the deployment pass or fail?] ****************************************
+task path: /home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-minimal/playbooks/quickstart.yml:83
+Tuesday 09 August 2016  08:02:32 +0000 (0:00:00.041)       2:08:32.201 ******** 
+fatal: [localhost]: FAILED! => {
+    "changed": false, 
+    "failed": true, 
+    "failed_when_result": true, 
+    "overcloud_deploy_result": "failed"
+}
+
+NO MORE HOSTS LEFT *************************************************************
+
+PLAY RECAP *********************************************************************
+172.19.2.141               : ok=79   changed=50   unreachable=0    failed=0   
+localhost                  : ok=18   changed=8    unreachable=0    failed=1   
+undercloud                 : ok=40   changed=25   unreachable=0    failed=0   
+'''
 
 if __name__ == "__main__":
     unittest.main()

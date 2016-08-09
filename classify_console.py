@@ -32,6 +32,7 @@ toplevel_error_regexp = re.compile(
 
 log_regexp = re.compile(
     r'^fatal:.*? > ([/a-zA-Z0-9._-]+/([a-zA-Z0-9._-]+)\.log)'
+    r'|"(?P<overcloud>overcloud_deploy_result)": "failed"'
 )
 
 error_regexp = re.compile(
@@ -115,7 +116,11 @@ def classify(data):
         while idx >= 0:
             res = log_regexp.search(lines[idx])
             if res:
-                classified = (res.group(2), res.group(1))
+                if res.group('overcloud'):
+                    classified = ('overcloud',
+                                  '/home/stack/overcloud_deploy.log')
+                else:
+                    classified = (res.group(2), res.group(1))
                 break
             else:
                 res = error_regexp.search(lines[idx])
