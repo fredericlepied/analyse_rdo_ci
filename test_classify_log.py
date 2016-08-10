@@ -55,8 +55,10 @@ class TestClassifyLog(unittest.TestCase):
                           ('/home/stack/tempest_console.log',))
 
     def test_tempest_failed(self):
-        self.assertEquals(classify_log.classify(TEMPEST_FAILED),
-                          ('tempest', 'volumesv2listtestjson'))
+        self.assertEquals(
+            classify_log.classify(TEMPEST_FAILED),
+            ('tempest',
+             'api.volume.test_volumes_list.VolumesV2ListTestJSON'))
 
 POST_INSTALL = '''
 + openstack baremetal import --json instackenv.json

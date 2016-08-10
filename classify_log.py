@@ -31,7 +31,7 @@ error_regexp = re.compile(
     '|Went to status ERROR due to "Message: ([^.]+).*Code: 500"'
     '|CREATE_FAILED (Create timed out)'
     '|^\|.*\|.*\|\s*([^|]+)\s*\|\s*(?:CREATE_FAILED|CREATE_IN_PROGRESS)\s*\|.*\|.*\|$'
-    '|.*\.(?P<test>[\w_.]+).*\[.*\] \.\.\. FAILED'
+    '|\.(?P<test>[\w_.]+).*\[.*\] \.\.\. FAILED'
     '|^\+ subunit2html /home/stack/(?P<tempest>tempest)/\.testrepository/0 /home/stack/tempest.html'
 )
 
@@ -45,7 +45,7 @@ def classify(data):
             if res.group('tempest'):
                 return ('/home/stack/tempest_console.log',)
             elif res.group('test'):
-                return ('tempest', cleanup_result(res),)
+                return ('tempest', res.group('test'),)
             else:
                 return (cleanup_result(res),)
     return ('unknown',)
