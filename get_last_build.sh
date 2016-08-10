@@ -33,24 +33,27 @@ curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/j
 
 global_result=$(jq -r .result $json)
 
-if [ $global_result = FAILURE ]; then
-    echo "job $(jq -r .id $json):"
-    len=$(jq '.subBuilds | length' $json)
-
-    for idx in $(seq 0 $(($len - 1))); do
-        result=$(jq -r ".subBuilds[$idx].result" $json)
-        case $result in
-            FAILURE)
-                bn=$(jq -r ".subBuilds[$idx].buildNumber" $json)
-                jn=$(jq -r ".subBuilds[$idx].jobName" $json)
-                echo -n "    "
-                $(dirname $0)/analyse.sh $jn $bn
-                ;;
-        esac
-    done|sort
-else
-    echo "nothing to analyse ($global_result)" 1>&2
-fi
+case $global_result in
+    FAILURE|*null*)
+        echo "job $(jq -r .id $json):"
+        len=$(jq '.subBuilds | length' $json)
+        
+        for idx in $(seq 0 $(($len - 1))); do
+            result=$(jq -r ".subBuilds[$idx].result" $json)
+            case $result in
+                FAILURE)
+                    bn=$(jq -r ".subBuilds[$idx].buildNumber" $json)
+                    jn=$(jq -r ".subBuilds[$idx].jobName" $json)
+                    echo -n "    "
+                    $(dirname $0)/analyse.sh $jn $bn
+                    ;;
+            esac
+        done|sort
+        ;;
+    *)
+        echo "nothing to analyse ($global_result)" 1>&2
+        ;;
+esac
 
 rm -f $json
 
