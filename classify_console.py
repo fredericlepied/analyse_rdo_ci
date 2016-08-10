@@ -28,6 +28,7 @@ recap_regexp = re.compile(
 
 toplevel_error_regexp = re.compile(
     r"ERROR! the file_name '.*/([^/]+' does not exist, or is not readable)"
+    r'|(Build timed out) \(after \d+ minutes\)'
 )
 
 log_regexp = re.compile(
@@ -75,9 +76,8 @@ def cleanup_result(res):
         punctuation_regexp.sub('', stri))))
 
 
-def classify_stderr(reas, lines):
+def classify_stderr(reason, lines):
     '''classify errors from weirdo runs or Python tracebacks'''
-    reason = (reas, 'unknown')
     if lines[0] == 'Traceback (most recent call last):':
         return (reason[0], cleanup_result(lines[-1]))
     for idx in xrange(len(lines) - 1, 0, -1):
@@ -135,18 +135,24 @@ def classify(data):
                         # reformat stderr for better analysis
                         for eline in elines:
                             sys.stderr.write(eline + '\n')
-                        classified = classify_stderr(classified[0], elines)
+                        classified = classify_stderr(classified, elines)
                         break
                     classified = (classified[0], cleanup_result(res))
                     break
             idx -= 1
     else:
         idx = len(lines) - 1
+        ignoring = False
         while idx >= 0:
-            res = generic_regexp.search(lines[idx])
-            if res:
-                classified = ('host', cleanup_result(res))
-                break
+            if lines[idx] == '...ignoring':
+                ignoring = True
+            elif ignoring:
+                ignoring = False
+            else:
+                res = generic_regexp.search(lines[idx])
+                if res:
+                    classified = ('host', cleanup_result(res))
+                    break
             idx -= 1
     return classified
 

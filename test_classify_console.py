@@ -72,19 +72,29 @@ class TestClassify(unittest.TestCase):
             classify.classify(OVERCLOUD_DEPLOY_RESULT),
             ('overcloud', '/home/stack/overcloud_deploy.log'))
 
+    def test_ignoring(self):
+        self.assertEquals(
+            classify.classify(IGNORING),
+            ('unknown',))
+
+    def test_build_timeout(self):
+        self.assertEquals(
+            classify.classify(BUILD_TIMEOUT),
+            ('host', 'build-timed-out'))
+
     def test_tempest(self):
         self.assertEquals(
-            classify.classify_stderr('host', TEMPEST.split('\n')),
+            classify.classify_stderr(('host',), TEMPEST.split('\n')),
             ('tempest', 'VPNaaSTestJSON'))
 
     def test_summary(self):
         self.assertEquals(
-            classify.classify_stderr('host', PACKSTACK_SUMMARY.split('\n')),
+            classify.classify_stderr(('host',), PACKSTACK_SUMMARY.split('\n')),
             ('host', 'running-tempest'))
 
     def test_traceback(self):
         self.assertEquals(
-            classify.classify_stderr('host', TRACEBACK.split('\n')),
+            classify.classify_stderr(('host',), TRACEBACK.split('\n')),
             ('host', 'keyerror-ctlplane-stdout-'))
 
 RECAP_UNDERCLOUD = '''
@@ -245,6 +255,29 @@ PLAY RECAP *********************************************************************
 172.19.2.141               : ok=79   changed=50   unreachable=0    failed=0   
 localhost                  : ok=18   changed=8    unreachable=0    failed=1   
 undercloud                 : ok=40   changed=25   unreachable=0    failed=0   
+'''
+
+IGNORING = '''
+TASK [setup/undercloud : Check for image in cache] *****************************
+task path: /home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-minimal/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:63
+Wednesday 10 August 2016  01:53:39 +0000 (0:00:00.143)       0:01:57.947 ****** 
+fatal: [172.19.2.140]: FAILED! => {"changed": false, "cmd": ["test", "-f", "/var/cache/tripleo-quickstart/images/720363219a485fa3bb4ecbe6fda4419a.qcow2"], "delta": "0:00:00.005767", "end": "2016-08-10 02:53:40.131198", "failed": true, "rc": 1, "start": "2016-08-10 02:53:40.125431", "stderr": "", "stdout": "", "stdout_lines": [], "warnings": []}
+...ignoring
+'''
+
+BUILD_TIMEOUT = '''
+TASK [tripleo/validate : Validate the overcloud] *******************************
+task path: /home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-minimal/tripleo-quickstart/roles/tripleo/validate/tasks/validate.yml:1
+Wednesday 10 August 2016  03:56:11 +0000 (0:00:00.053)       2:04:30.159 ****** 
+Build timed out (after 180 minutes). Marking the build as failed.
+Build was aborted
+Performing Post build task...
+Match found for :Building remotely : True
+Logical operation result is TRUE
+Running script  : # tripleo-quickstart-cleanup.sh
+# A script to cleanup after tripleo-quickstart jobs
+# Collects logs and returns the node
+set -eux
 '''
 
 if __name__ == "__main__":
