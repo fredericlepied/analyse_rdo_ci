@@ -35,10 +35,15 @@ error_regexp = re.compile(
     '|^\+ subunit2html /home/stack/(?P<tempest>tempest)/\.testrepository/0 /home/stack/tempest.html'
 )
 
+generic_error_regexp = re.compile(
+    '(Stack overcloud CREATE_FAILED)'
+)
+
 
 def classify(data):
     lines = data.split('\n')
     lines.reverse()
+    # first pass with specific patterns
     for line in lines:
         res = error_regexp.search(line)
         if res:
@@ -48,6 +53,11 @@ def classify(data):
                 return ('tempest', res.group('test'),)
             else:
                 return (cleanup_result(res),)
+    # second pass with more generic patterns
+    for line in lines:
+        res = generic_error_regexp.search(line)
+        if res:
+            return (cleanup_result(res),)
     return ('unknown',)
 
 if __name__ == "__main__":
