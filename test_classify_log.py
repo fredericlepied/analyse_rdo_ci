@@ -50,6 +50,14 @@ class TestClassifyLog(unittest.TestCase):
         self.assertEquals(classify_log.classify(HEAT_RESOURCE2),
                           ('os-cinder-volume',))
 
+    def test_tempest(self):
+        self.assertEquals(classify_log.classify(TEMPEST),
+                          ('/home/stack/tempest_console.log',))
+
+    def test_tempest_failed(self):
+        self.assertEquals(classify_log.classify(TEMPEST_FAILED),
+                          ('tempest', 'volumesv2listtestjson'))
+
 POST_INSTALL = '''
 + openstack baremetal import --json instackenv.json
 (pymysql.err.InternalError) (1054, u"Unknown column 'unique_key' in 'field list'") [SQL: u'INSERT INTO delayed_calls_v2 (created_at, id, factory_method_path, target_method_name, method_arguments, serializers, unique_key, auth_context, execution_time, processing) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE id=id'] [parameters: (datetime.datetime(2016, 8, 5, 12, 47, 0, 59083), u'06ecd004-26d3-455e-aa7c-93d959c50800', None, 'mistral.engine.actions._run_existing_action', '{"action_ex_id": "57d28243-920d-486b-bf10-1c7ff03bb2b7", "target": null}', None, None, '{"project_name": "admin", "user_id": "bd1a8bf5f6fe4061b1dceed0ec6c843f", "roles": ["admin"], "is_trust_scoped": false, "auth_cacert": null, "auth_token": "d86f785438f0458eb04d637db64f7d13", "auth_uri": "http://192.0.2.1:5000/v3", "service_catalog": "[{\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:5050\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:5050\\", \\"publicURL\\": \\"http://192.0.2.1:5050\\"}], \\"type\\": \\"baremetal-introspection\\", \\"name\\": \\"ironic-inspector\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:6385\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:6385\\", \\"publicURL\\": \\"http://192.0.2.1:6385\\"}], \\"type\\": \\"baremetal\\", \\"name\\": \\"ironic\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"ws://192.0.2.1:9000/\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"ws://192.0.2.1:9000/\\", \\"publicURL\\": \\"ws://192.0.2.1:9000/\\"}], \\"type\\": \\"messaging-websocket\\", \\"name\\": \\"zaqar-websocket\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8080\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8080/v1/AUTH_0d1b5970a85c471e9c936eb12dd2c373\\", \\"publicURL\\": \\"http://192.0.2.1:8080/v1/AUTH_0d1b5970a85c471e9c936eb12dd2c373\\"}], \\"type\\": \\"object-store\\", \\"name\\": \\"swift\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8989/v2\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8989/v2\\", \\"publicURL\\": \\"http://192.0.2.1:8989/v2\\"}], \\"type\\": \\"workflowv2\\", \\"name\\": \\"mistral\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:9292\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:9292\\", \\"publicURL\\": \\"http://192.0.2.1:9292\\"}], \\"type\\": \\"image\\", \\"name\\": \\"glance\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8774/v2.1\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8774/v2.1\\", \\"publicURL\\": \\"http://192.0.2.1:8774/v2.1\\"}], \\"type\\": \\"compute\\", \\"name\\": \\"nova\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:9696\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:9696\\", \\"publicURL\\": \\"http://192.0.2.1:9696\\"}], \\"type\\": \\"network\\", \\"name\\": \\"neutron\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8888/\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8888/\\", \\"publicURL\\": \\"http://192.0.2.1:8888/\\"}], \\"type\\": \\"messaging\\", \\"name\\": \\"zaqar\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:35357/v2.0\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:5000/v2.0\\", \\"publicURL\\": \\"http://192.0.2.1:5000/v2.0\\"}], \\"type\\": \\"identity\\", \\"name\\": \\"keystone\\"}, {\\"endpoints\\": [{\\"adminURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\", \\"region\\": \\"regionOne\\", \\"internalURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\", \\"publicURL\\": \\"http://192.0.2.1:8004/v1/0d1b5970a85c471e9c936eb12dd2c373\\"}], \\"type\\": \\"orchestration\\", \\"name\\": \\"heat\\"}]", "project_id": "0d1b5970a85c471e9c936eb12dd2c373", "user_name": "admin"}', datetime.datetime(2016, 8, 5, 12, 47, 0, 56967), 0)]
@@ -116,6 +124,19 @@ HEAT_RESOURCE2 = '''
 | private_subnet        | 51fb28c4-9ca4-43cf-87aa-2b61bb67d585                                                | OS::Neutron::Subnet          | CREATE_COMPLETE    | 2016-08-08T23:51:28 | tenant-stack |
 | server_security_group | 042b0d2a-a6c6-47fb-8526-f316b193753d                                                | OS::Neutron::SecurityGroup   | CREATE_COMPLETE    | 2016-08-08T23:51:28 | tenant-stack |
 +-----------------------+-------------------------------------------------------------------------------------+------------------------------+--------------------+---------------------+--------------+
+'''
+
+TEMPEST = '''
+++ find /home/stack/tempest/.testrepository -name '[0-9]'
++ subunit2html /home/stack/tempest/.testrepository/0 /home/stack/tempest.html
++ exit 1
+'''
+
+TEMPEST_FAILED = '''
+{0} setUpClass (tempest.api.volume.test_volumes_list.VolumesV1ListTestJSON) [0.000000s] ... FAILED
+{0} setUpClass (tempest.scenario.test_server_multinode.TestServerMultinode) ... SKIPPED: Less than 2 compute nodes, skipping multinode tests.
+{1} setUpClass (tempest.api.volume.test_volumes_list.VolumesV2ListTestJSON) [0.000000s] ... FAILED
+{1} tempest.scenario.test_server_basic_ops.TestServerBasicOps.test_server_basic_ops [41.543969s] ... ok
 '''
 
 if __name__ == "__main__":
