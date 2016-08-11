@@ -61,8 +61,16 @@ case $(jq -r .result jobs/"$job"/json) in
                 esac
                 case "$logfile" in
                     /*)
-                        curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/jenkins-"$jobname-$jobid"/${topdir}${logfile}.gz && \
-                            gunzip -f jobs/"$job"/$(basename $logfile).gz
+                        case $jobname in
+                            weirdo*)
+                                curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/"$jobname/$jobid"/${logfile}.gz && \
+                                    gunzip -f jobs/"$job"/$(basename $logfile).gz
+                                ;;
+                            *)
+                                curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/jenkins-"$jobname-$jobid"/${topdir}${logfile}.gz && \
+                                    gunzip -f jobs/"$job"/$(basename $logfile).gz
+                                ;;
+                            esac
                         ;;
                 esac
             fi

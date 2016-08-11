@@ -90,7 +90,7 @@ class TestClassify(unittest.TestCase):
     def test_summary(self):
         self.assertEquals(
             classify.classify_stderr(('host',), PACKSTACK_SUMMARY.split('\n')),
-            ('host', 'running-tempest'))
+            ('host', '/packstack/logs/latest/tempest.log.txt'))
 
     def test_traceback(self):
         self.assertEquals(

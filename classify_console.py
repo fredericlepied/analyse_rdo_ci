@@ -85,6 +85,13 @@ def classify_stderr(reason, lines):
         if res:
             if res.group(1):
                 reason = ('tempest', res.group(1))
+            elif res.group(2):
+                cln = cleanup_result(res)
+                if cln == 'running-tempest':
+                    reason = (reason[0],
+                              '/packstack/logs/latest/tempest.log.txt')
+                else:
+                    reason = (reason[0], cln)
             else:
                 reason = (reason[0], cleanup_result(res))
             break
