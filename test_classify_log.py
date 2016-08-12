@@ -63,7 +63,12 @@ class TestClassifyLog(unittest.TestCase):
     def test_create_failed(self):
         self.assertEquals(
             classify_log.classify(CREATE_FAILED),
-            ('stack-overcloud-create_failed',))
+            ('/home/stack/failed_deployment_list.log',))
+
+    def test_failed_deployment(self):
+        self.assertEquals(
+            classify_log.classify(FAILED_DEPLOYMENT_lIST),
+            ('swift-service-end',))
 
 POST_INSTALL = '''
 + openstack baremetal import --json instackenv.json
@@ -152,6 +157,22 @@ ver failed: deploy_status_code: Deployment exited with non-zero status code: 6
 2016-08-09 15:35:22 [ControllerNodesPostDeployment]: CREATE_FAILED Error: resources.ControllerNodesPostDeployment.resources.ControllerOvercloudServicesDeployment_Step4.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
 2016-08-09 15:35:22 [overcloud]: CREATE_FAILED Resource CREATE failed: Error: resources.ControllerNodesPostDeployment.resources.ControllerOvercloudServicesDeployment_Step4.resources[0]: Deployment to server failed: deploy_status_code: Deployment exited with non-zero status code: 6
 Stack overcloud CREATE_FAILED
+'''
+
+FAILED_DEPLOYMENT_lIST = '''
+ deploy_stderr: |
+    ...
+    [1;31mWarning: /Stage[main]/Swift::Storage::Account/Swift::Storage::Generic[account]/Swift::Service[swift-account-server]/Service[swift-account-server]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Object/Swift::Storage::Generic[object]/Swift::Service[swift-object-replicator]/Service[swift-object-replicator]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Object/Swift::Storage::Generic[object]/Swift::Service[swift-object-auditor]/Service[swift-object-auditor]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Proxy/Swift::Service[swift-proxy-server]/Service[swift-proxy-server]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Object/Swift::Service[swift-object-updater]/Service[swift-object-updater]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Container/Swift::Storage::Generic[container]/Swift::Service[swift-container-replicator]/Service[swift-container-replicator]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Container/Swift::Storage::Generic[container]/Swift::Service[swift-container-auditor]/Service[swift-container-auditor]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Container/Swift::Storage::Generic[container]/Swift::Service[swift-container-server]/Service[swift-container-server]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Storage::Container/Swift::Service[swift-container-updater]/Service[swift-container-updater]: Skipping because of failed dependencies[0m
+    [1;31mWarning: /Stage[main]/Swift::Deps/Anchor[swift::service::end]: Skipping because of failed dependencies[0m
+    (truncated, view all with --long)
 '''
 
 if __name__ == "__main__":

@@ -33,6 +33,7 @@ error_regexp = re.compile(
     '|^\|.*\|.*\|\s*([^|]+)\s*\|\s*(?:CREATE_FAILED|CREATE_IN_PROGRESS)\s*\|.*\|.*\|$'
     '|\.(?P<test>[\w_.]+).*\[.*\] \.\.\. FAILED'
     '|^\+ subunit2html /home/stack/(?P<tempest>tempest)/\.testrepository/0 /home/stack/tempest.html'
+    '|^.*\[(.+?)\]: Skipping because of failed dependencies'
 )
 
 generic_error_regexp = re.compile(
@@ -57,7 +58,10 @@ def classify(data):
     for line in lines:
         res = generic_error_regexp.search(line)
         if res:
-            return (cleanup_result(res),)
+            if res.group(1):
+                return ('/home/stack/failed_deployment_list.log', )
+            else:
+                return (cleanup_result(res),)
     return ('unknown',)
 
 if __name__ == "__main__":
