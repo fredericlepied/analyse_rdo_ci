@@ -55,6 +55,7 @@ separator_regexp = re.compile(r"\s+|::")
 weirdo_regexp = re.compile(
     r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
     r'|^(.*?)\s+\[.*ERROR.*\]$'
+    r'|(Second Puppet run is not idempotent)'
 )
 
 

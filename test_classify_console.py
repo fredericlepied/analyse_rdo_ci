@@ -97,6 +97,11 @@ class TestClassify(unittest.TestCase):
             classify.classify_stderr(('host',), TRACEBACK.split('\n')),
             ('host', 'keyerror-ctlplane-stdout-'))
 
+    def test_idempotent(self):
+        self.assertEquals(
+            classify.classify_stderr(('host',), IDEMPOTENT.split('\n')),
+            ('host', 'second-puppet-run-is-not-idempotent',))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -278,6 +283,10 @@ Running script  : # tripleo-quickstart-cleanup.sh
 # A script to cleanup after tripleo-quickstart jobs
 # Collects logs and returns the node
 set -eux
+'''
+
+IDEMPOTENT = '''
+Second Puppet run is not idempotent
 '''
 
 if __name__ == "__main__":
