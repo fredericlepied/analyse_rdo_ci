@@ -38,6 +38,7 @@ error_regexp = re.compile(
 
 generic_error_regexp = re.compile(
     '(Stack overcloud CREATE_FAILED)'
+    '|(Gateway Timeout) \(HTTP 504\)'
 )
 
 
