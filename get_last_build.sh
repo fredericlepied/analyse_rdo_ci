@@ -29,7 +29,11 @@ if [ -z "$jbid" -o "$jbid" = - ]; then
     jbid=lastBuild
 fi
 
-curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/$jname/$jbid/api/json
+if [ -r jobs/$jname/$jbid/json ]; then
+    cp -p jobs/$jname/$jbid/json $json
+else
+    curl --fail -s -o $json https://ci.centos.org/view/rdo/view/promotion-pipeline/job/$jname/$jbid/api/json || exit $?
+fi
 
 global_result=$(jq -r .result $json)
 
@@ -52,6 +56,16 @@ case $global_result in
         ;;
     *)
         echo "nothing to analyse ($global_result)" 1>&2
+        ;;
+esac
+
+case $global_result in
+    *null*)
+        ;;
+    *)
+        jbid="$(jq -r .id $json)"
+        mkdir -p jobs/$jname/$jbid
+        cp -p $json jobs/$jname/$jbid/json
         ;;
 esac
 
