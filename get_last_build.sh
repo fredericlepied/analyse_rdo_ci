@@ -55,7 +55,8 @@ case $global_result in
         done|sort
         ;;
     *)
-        echo "nothing to analyse ($global_result)" 1>&2
+        echo "job $(jq -r .id $json):"
+        echo "    nothing to analyse ($global_result)" 1>&2
         ;;
 esac
 
