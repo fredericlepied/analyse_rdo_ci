@@ -82,6 +82,11 @@ class TestClassify(unittest.TestCase):
             classify.classify(BUILD_TIMEOUT),
             ('host', 'build-timed-out'))
 
+    def test_fatal_topic(self):
+        self.assertEquals(
+            classify.classify(FATAL_TOPIC),
+            ('host', 'setup-undercloud-get-image-expected-checksum'))
+
     def test_tempest(self):
         self.assertEquals(
             classify.classify_stderr(('host',), TEMPEST.split('\n')),
@@ -287,6 +292,18 @@ set -eux
 
 IDEMPOTENT = '''
 Second Puppet run is not idempotent
+'''
+
+FATAL_TOPIC  = '''
+TASK [setup/undercloud : Get image expected checksum] **************************
+task path: /home/rhos-ci/workspace/tripleo-quickstart-promote-master-delorean-minimal/tripleo-quickstart/roles/libvirt/setup/undercloud/tasks/fetch_image.yml:53
+Monday 22 August 2016  18:10:40 +0000 (0:00:00.084)       0:02:37.084 ********* 
+fatal: [172.19.2.135]: FAILED! => {"changed": true, "cmd": ["curl", "-sf", "http://artifacts.ci.centos.org/artifacts/rdo/images/master/delorean/testing-consistent/undercloud.qcow2.md5"], "delta": "0:00:00.021942", "end": "2016-08-22 19:10:40.953599", "failed": true, "rc": 22, "start": "2016-08-22 19:10:40.931657", "stderr": "", "stdout": "", "stdout_lines": [], "warnings": ["Consider using get_url or uri module rather than running curl"]}
+
+PLAY RECAP *********************************************************************
+172.19.2.135               : ok=69   changed=34   unreachable=0    failed=1   
+localhost                  : ok=10   changed=5    unreachable=0    failed=0   
+
 '''
 
 if __name__ == "__main__":

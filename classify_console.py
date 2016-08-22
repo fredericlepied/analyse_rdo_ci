@@ -38,9 +38,9 @@ log_regexp = re.compile(
 
 error_regexp = re.compile(
     r'^fatal:.*"stderr": "error: ([^\\\\]+)'
-    r'|^(?:fatal|failed):.*"msg": ".*WARNING: (.*?)[.!].*"'
-    r'|^(?:fatal|failed):.*"msg": "(.*?)\.?"'
-    r'|^fatal:.*"stderr": "(?P<stderr>.*?)", "stdout_lines"'
+    r'|^(?:fatal|failed):.*"msg": ".*WARNING: (.+?)[.!].*"'
+    r'|^(?:fatal|failed):.*"msg": "(.+?)\.?"'
+    r'|^fatal:.*"stderr": "(?P<stderr>.+?)", "stdout_lines"'
 )
 
 generic_regexp = re.compile(
@@ -50,12 +50,20 @@ generic_regexp = re.compile(
 
 punctuation_regexp = re.compile(r"['\",:]")
 
-separator_regexp = re.compile(r"\s+|::")
+separator_regexp = re.compile(r"\s+|::|/")
 
 weirdo_regexp = re.compile(
     r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
     r'|^(.*?)\s+\[.*ERROR.*\]$'
     r'|(Second Puppet run is not idempotent)'
+)
+
+fatal_regexp = re.compile(
+    r'^fatal:.*'
+)
+
+task_regexp = re.compile(
+    r'^TASK \[(.+)\]'
 )
 
 
@@ -121,6 +129,7 @@ def classify(data):
             break
         idx += 1
     if classified != ('unknown', ):
+        loop = idx
         while idx >= 0:
             res = log_regexp.search(lines[idx])
             if res:
@@ -148,6 +157,20 @@ def classify(data):
                     classified = (classified[0], cleanup_result(res))
                     break
             idx -= 1
+        # if nothing has been found, lookup the first TASK in fatal
+        # state and report its name.
+        if len(classified) == 1:
+            while loop >= 0:
+                res = fatal_regexp.search(lines[loop])
+                if res:
+                    break
+                loop -= 1
+            while loop >= 0:
+                res = task_regexp.search(lines[loop])
+                if res:
+                    classified = (classified[0], cleanup_result(res))
+                    break
+                loop -= 1
     else:
         idx = len(lines) - 1
         ignoring = False
