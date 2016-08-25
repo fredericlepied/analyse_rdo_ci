@@ -56,6 +56,7 @@ weirdo_regexp = re.compile(
     r'.*\.([\w_.]+).*\[.*\] \.\.\. FAILED'
     r'|^(.*?)\s+\[.*ERROR.*\]$'
     r'|(Second Puppet run is not idempotent)'
+    r'|You will find full trace in log /var/tmp/packstack/[^/]+/(?P<packstack>.+\.log)'
 )
 
 fatal_regexp = re.compile(
@@ -94,6 +95,9 @@ def classify_stderr(reason, lines):
         if res:
             if res.group(1):
                 reason = ('tempest', res.group(1))
+            elif res.group('packstack'):
+                return ('host',
+                        '/packstack/logs/latest/' + res.group('packstack') + '.txt')
             elif res.group(2):
                 cln = cleanup_result(res)
                 if cln == 'running-tempest':

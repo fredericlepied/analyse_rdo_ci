@@ -107,6 +107,14 @@ class TestClassify(unittest.TestCase):
             classify.classify_stderr(('host',), IDEMPOTENT.split('\n')),
             ('host', 'second-puppet-run-is-not-idempotent',))
 
+    def test_packstack(self):
+        self.assertEquals(
+            classify.classify_stderr(('host',), PACKSTACK_LOG.split('\n')),
+            ('host',
+             '/packstack/logs/latest/manifests/'
+             '172.19.3.114_controller.pp.log.txt'
+             ))
+
 RECAP_UNDERCLOUD = '''
 PLAY RECAP *********************************************************************
 172.19.2.138               : ok=79   changed=50   unreachable=0    failed=0   
@@ -304,6 +312,22 @@ PLAY RECAP *********************************************************************
 172.19.2.135               : ok=69   changed=34   unreachable=0    failed=1   
 localhost                  : ok=10   changed=5    unreachable=0    failed=0   
 
+'''
+
+
+PACKSTACK_LOG = '''
+Preparing Nagios server entries                      [ \u001b[32mDONE\u001b[0m ]
+Preparing Nagios host entries                        [ \u001b[32mDONE\u001b[0m ]
+Preparing Puppet manifests                           [ \u001b[32mDONE\u001b[0m ]
+Copying Puppet modules and manifests                 [ \u001b[32mDONE\u001b[0m ]
+Applying 172.19.3.114_controller.pp
+\r172.19.3.114_controller.pp:                       [ \u001b[0;31mERROR\u001b[0m ]
+Applying Puppet manifests                         [ \u001b[0;31mERROR\u001b[0m ]
+
+\u001b[0;31mERROR : Error appeared during Puppet run: 172.19.3.114_controller.pp
+Error: Invalid parameter keystone_auth_uri on Class[Ceilometer::Api] at /var/tmp/packstack/601c5bb0479e4bcb97375329a99af5b5/modules/packstack/manifests/ceilometer.pp:73 on node n50.ci.centos.org
+You will find full trace in log /var/tmp/packstack/20160825-070519-QNNyZl/manifests/172.19.3.114_controller.pp.log\u001b[0m
+Please check log file /var/tmp/packstack/20160825-070519-QNNyZl/openstack-setup.log for more information
 '''
 
 if __name__ == "__main__":
