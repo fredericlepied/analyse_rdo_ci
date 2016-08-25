@@ -34,6 +34,7 @@ error_regexp = re.compile(
     '|\.(?P<test>[\w_.]+).*\[.*\] \.\.\. FAILED'
     '|^\+ subunit2html /home/stack/(?P<tempest>tempest)/\.testrepository/0 /home/stack/tempest.html'
     '|^.*\[(.+?)\]: Skipping because of failed dependencies'
+    '|Error: (.+) at '
 )
 
 generic_error_regexp = re.compile(
