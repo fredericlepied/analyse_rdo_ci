@@ -49,7 +49,7 @@ case $(jq -r .result jobs/"$job"/json) in
         read reason logfile rest <<< $result
         # loop while we have a new logfile
         while :; do
-            localfile=jobs/"$job"/$(basename "$logfile")
+            localfile=jobs/"$job"/$(basename -- "$logfile")
             if [ ! -r "$localfile" ]; then
                 case $reason in
                     undercloud*|overcloud*)
@@ -63,8 +63,8 @@ case $(jq -r .result jobs/"$job"/json) in
                     /*)
                         case $jobname in
                             weirdo*)
-                                curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/"$jobname/$jobid"/${logfile}.gz && \
-                                    gunzip -f jobs/"$job"/$(basename $logfile).gz
+                                curl --fail -s -o jobs/"$job"/$(basename -- $logfile).gz https://ci.centos.org/artifacts/rdo/"$jobname/$jobid"/${logfile}.gz && \
+                                    gunzip -f jobs/"$job"/$(basename -- $logfile).gz
                                 ;;
                             *)
                                 curl --fail -s -o jobs/"$job"/$(basename $logfile).gz https://ci.centos.org/artifacts/rdo/jenkins-"$jobname-$jobid"/${topdir}${logfile}.gz && \

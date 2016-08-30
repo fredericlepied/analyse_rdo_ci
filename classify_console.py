@@ -29,7 +29,7 @@ recap_regexp = re.compile(
 toplevel_error_regexp = re.compile(
     r"ERROR! the file_name '.*/([^/]+' does not exist, or is not readable)"
     r'|(Build timed out) \(after \d+ minutes\)'
-    r'|error .*: \[.*\] (.*) --'
+    r'|^.{0,10}error .*: \[.*\] (.*) --'
 )
 
 log_regexp = re.compile(
