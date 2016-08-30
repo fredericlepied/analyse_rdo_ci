@@ -87,6 +87,11 @@ class TestClassify(unittest.TestCase):
             classify.classify(FATAL_TOPIC),
             ('host', 'setup-undercloud-get-image-expected-checksum'))
 
+    def test_network_unreachable(self):
+        self.assertEquals(
+            classify.classify(NETWORK_UNREACHABLE),
+            ('host', 'network-is-unreachable'))
+
     def test_tempest(self):
         self.assertEquals(
             classify.classify_stderr(('host',), TEMPEST.split('\n')),
@@ -328,6 +333,12 @@ Applying Puppet manifests                         [ \u001b[0;31mERROR\u001b[0m ]
 Error: Invalid parameter keystone_auth_uri on Class[Ceilometer::Api] at /var/tmp/packstack/601c5bb0479e4bcb97375329a99af5b5/modules/packstack/manifests/ceilometer.pp:73 on node n50.ci.centos.org
 You will find full trace in log /var/tmp/packstack/20160825-070519-QNNyZl/manifests/172.19.3.114_controller.pp.log\u001b[0m
 Please check log file /var/tmp/packstack/20160825-070519-QNNyZl/openstack-setup.log for more information
+'''
+
+NETWORK_UNREACHABLE = '''
+~/workspace/tripleo-quickstart-promote-master-delorean-build-images/tripleo-quickstart ~/workspace/tripleo-quickstart-promote-master-delorean-build-images/tripleo-quickstart
+Download error on https://pypi.python.org/simple/pbr/: [Errno 101] Network is unreachable -- Some packages may not be found!
+Couldn't find index page for 'pbr' (maybe misspelled?)
 '''
 
 if __name__ == "__main__":
