@@ -68,7 +68,7 @@ class TestClassifyLog(unittest.TestCase):
     def test_failed_deployment(self):
         self.assertEquals(
             classify_log.classify(FAILED_DEPLOYMENT_lIST),
-            ('swift-service-end',))
+            ('swift-deps-anchor[swift-service-end]',))
 
     def test_gateway_timeout(self):
         self.assertEquals(
@@ -79,6 +79,11 @@ class TestClassifyLog(unittest.TestCase):
         self.assertEquals(
             classify_log.classify(PUPPET_ERROR),
             ('invalid-parameter-keystone_auth_uri-on-class[ceilometer-api]',))
+
+    def test_puppet2(self):
+        self.assertEquals(
+            classify_log.classify(PUPPET_ERROR2),
+            ('keystone-roles-admin-keystone_user_role[admin@admin]',))
 
 POST_INSTALL = '''
 + openstack baremetal import --json instackenv.json
@@ -196,6 +201,26 @@ PUPPET_ERROR = '''
 [0;36mDebug: importing '/var/tmp/packstack/601c5bb0479e4bcb97375329a99af5b5/modules/ceilometer/manifests/api.pp' in environment production[0m
 [0;36mDebug: Automatically imported ceilometer::api from ceilometer/api into production[0m
 [1;31mError: Invalid parameter keystone_auth_uri on Class[Ceilometer::Api] at /var/tmp/packstack/601c5bb0479e4bcb97375329a99af5b5/modules/packstack/manifests/ceilometer.pp:73 on node n50.ci.centos.org
+'''
+
+PUPPET_ERROR2 = '''
+    [1;31mWarning: Scope(Concat::Fragment[Listen 172.16.2.7:8042]): deprecation. puppet_3_type_check. This method is deprecated, please use the stdlib validate_legacy function, with Stdlib::Compat::String. There is further documentation for validate_legacy function in the README.[0m
+    [1;31mWarning: Scope(Concat::Fragment[Listen 172.16.2.7:8042]): deprecation. puppet_3_type_check. This method is deprecated, please use the stdlib validate_legacy function, with Stdlib::Compat::String. There is further documentation for validate_legacy function in the README.[0m
+    [1;31mWarning: Scope(Concat::Fragment[Listen 172.16.2.7:8042]): deprecation. is_integer. This method is deprecated, please use the stdlib validate_legacy function, with Stdlib::Compat::Integer. There is further documentation for validate_legacy function in the README.[0m
+    [1;31mWarning: Scope(Concat::Fragment[Listen 172.16.2.7:8042]): deprecation. puppet_3_type_check. This method is deprecated, please use the stdlib validate_legacy function, with Stdlib::Compat::String. There is further documentation for validate_legacy function in the README.[0m
+    [1;31mWarning: Not collecting exported resources without storeconfigs[0m
+    2016-09-02  7:29:53 139632269035648 [Warning] option 'open_files_limit': unsigned value 18446744073709551615 adjusted to 4294967295
+    [1;31mError: /Stage[main]/Keystone/Exec[keystone-manage bootstrap]: Failed to call refresh: Command exceeded timeout[0m
+    [1;31mError: /Stage[main]/Keystone/Exec[keystone-manage bootstrap]: Command exceeded timeout[0m
+    [1;31mError: /Stage[main]/Keystone::Roles::Admin/Keystone_user[admin]: Could not evaluate: Command: 'openstack ["token", "issue", ["--format", "value"]]' has been running for more than 40 seconds (tried 4, for a total of 170 seconds)[0m
+    [1;31mWarning: /Stage[main]/Keystone::Roles::Admin/Keystone_user_role[admin@admin]: Skipping because of failed dependencies[0m
+    (truncated, view all with --long)
+overcloud.ComputeNodesPostDeployment.ComputeOvercloudServicesDeployment_Step4:
+  resource_type: OS::Heat::StructuredDeployments
+  physical_resource_id: ec423a1c-b927-4f75-a87f-83a72ffb652e
+  status: CREATE_FAILED
+  status_reason: |
+    CREATE aborted
 '''
 
 if __name__ == "__main__":
