@@ -33,7 +33,7 @@ error_regexp = re.compile(
     '|^\|.*\|.*\|\s*([^|]+)\s*\|\s*(?:CREATE_FAILED|CREATE_IN_PROGRESS)\s*\|.*\|.*\|$'
     '|\.(?P<test>[\w_.]+).*\[.*\] \.\.\. FAILED'
     '|^\+ subunit2html /home/stack/(?P<tempest>tempest)/\.testrepository/0 /home/stack/tempest.html'
-    '|^.*/(.*?/.*?\[.+?\]): Skipping because of failed dependencies'
+    '|^.*/([^/]*?/[^/]*?\[.+?\]): Skipping because of failed dependencies'
     '|Error: (.+) at '
 )
 
@@ -43,11 +43,14 @@ generic_error_regexp = re.compile(
 )
 
 
-def classify(data):
+def classify(data, debug=False):
     lines = data.split('\n')
     lines.reverse()
     # first pass with specific patterns
+    idx = 0
     for line in lines:
+        if debug:
+            sys.stderr.write('pass 1 line %d           \r' % idx)
         res = error_regexp.search(line)
         if res:
             if res.group('tempest'):
@@ -56,17 +59,23 @@ def classify(data):
                 return ('tempest', res.group('test'),)
             else:
                 return (cleanup_result(res),)
+        idx += 1
     # second pass with more generic patterns
+    idx = 0
     for line in lines:
+        if debug:
+            sys.stderr.write('pass 2 line %d          \r' % idx)
         res = generic_error_regexp.search(line)
         if res:
             if res.group(1):
                 return ('/home/stack/failed_deployment_list.log', )
             else:
                 return (cleanup_result(res),)
+        idx += 1
     return ('unknown',)
 
 if __name__ == "__main__":
-    print ' '.join(classify(sys.stdin.read(-1)))
+    print ' '.join(classify(sys.stdin.read(-1),
+                            debug=(len(sys.argv) > 1 and sys.argv[1] == '-d')))
 
 # classify_log.py ends here
